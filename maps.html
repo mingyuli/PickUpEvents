@@ -1,0 +1,85 @@
+<!DOCTYPE html >
+  	<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>Locations| Google Maps Example</title>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAE-wjSDAWt4lgn0GfN9Cq-6KR9a3HDnSg"
+            type="text/javascript"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+
+    function load() {
+      var map = new google.maps.Map(document.getElementById("map"), {
+        center: new google.maps.LatLng(35.912875, -79.058863),
+        zoom: 13,
+        mapTypeId: 'roadmap'
+      });
+      var infoWindow = new google.maps.InfoWindow;
+
+      // Change this depending on the name of your PHP file
+      downloadUrl("maps_xml.php", function(data) {
+        var xml = data.responseXML;
+        var markers = xml.documentElement.getElementsByTagName("marker");
+        for (var i = 0; i < markers.length; i++) {
+          var name = markers[i].getAttribute("name");
+          console.log(name);
+          var address = markers[i].getAttribute("address");
+          console.log(address);
+          //var type = markers[i].getAttribute("type");
+          var lat = markers[i].getAttribute("lat");
+          console.log(lat);
+          var lng = markers[i].getAttribute("lng");
+          console.log(lng);
+          var point = new google.maps.LatLng(lat, lng);
+              console.log(point);
+          var html = "<b>" + name + "</b> <br/>" + address;
+          
+          var marker = new google.maps.Marker({
+            map: map,
+            position: point          
+          });
+          bindInfoWindow(marker, map, infoWindow, html);
+        }
+      });
+    }
+
+ 	function bindInfoWindow(marker, map, infoWindow, html) {
+      google.maps.event.addListener(marker, 'click', function() {
+        infoWindow.setContent(html);
+        infoWindow.open(map, marker);
+      });
+    }
+
+    function downloadUrl(url, callback) {
+      var request = window.ActiveXObject ?
+          new ActiveXObject('Microsoft.XMLHTTP') :
+          new XMLHttpRequest;
+
+      request.onreadystatechange = function() {
+        if (request.readyState == 4) {
+          request.onreadystatechange = doNothing;
+          callback(request, request.status);
+        }
+      };
+
+      request.open('GET', url, true);
+      request.send(null);
+    }
+
+    function doNothing() {}
+
+
+    //]]>
+
+  </script>
+
+  </head>
+
+  <body onload="load()">
+    <div id="map" class="container" style="width: 550px; height: 325px"></div>
+  </body>
+
+</html>
